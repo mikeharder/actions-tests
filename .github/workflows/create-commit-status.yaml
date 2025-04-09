@@ -1,0 +1,23 @@
+name: Create Commit Status
+
+on: pull_request
+
+permissions:
+  contents: read
+
+jobs:
+  create-commit-status:
+    name: Create Commit Status
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Analyze content.txt
+        id: analyze
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const createCommitStatus = require('./.github/workflows/scripts/create-commit-status.js')
+            await createCommitStatus({ github, context, core });
