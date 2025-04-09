@@ -4,7 +4,10 @@
  * @param {import('github-script').AsyncFunctionArguments} AsyncFunctionArguments
  */
 module.exports = async ({ github, context, core }) => {
-  if (context.eventName === "pull_request") {
+  if (
+    context.eventName === "pull_request" ||
+    context.eventName === "pull_request_target"
+  ) {
     const payload =
       /** @type {import("@octokit/webhooks-types").PullRequestEvent} */ (
         context.payload
