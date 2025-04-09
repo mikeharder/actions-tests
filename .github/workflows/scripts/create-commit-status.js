@@ -1,12 +1,31 @@
 // @ts-check
 
-const { readFile } = require("fs/promises");
-const { join } = require("path");
-const { env } = require("process");
-
 /**
  * @param {import('github-script').AsyncFunctionArguments} AsyncFunctionArguments
  */
 module.exports = async ({ github, context, core }) => {
-  core.info("hello from create commit status");
+  if (context.eventName === "pull_request") {
+    const payload =
+      /** @type {import("@octokit/webhooks-types").PullRequestEvent} */ (
+        context.payload
+      );
+
+    const runUrl =
+      `https://github.com/${context.repo.owner}/${context.repo.repo}` +
+      `/actions/runs/${context.runId}`;
+
+    await github.rest.repos.createCommitStatus({
+      owner: context.repo.owner,
+      repo: context.repo.repo,
+      sha: payload.pull_request.head.sha,
+      state: "pending",
+      context: "custom/create-commit-status",
+      description: "Check is running...",
+      target_url: runUrl,
+    });
+  } else {
+    throw new Error(
+      `Context '${context.eventName}:${context.payload.action}' is not yet supported.`
+    );
+  }
 };
