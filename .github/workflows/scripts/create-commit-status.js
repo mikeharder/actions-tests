@@ -21,7 +21,7 @@ module.exports = async ({ github, context, core }) => {
       owner: context.repo.owner,
       repo: context.repo.repo,
       sha: payload.pull_request.head.sha,
-      state: "pending",
+      state: "success",
       context: "custom/create-commit-status",
       description: "Check is running...",
       target_url: runUrl,
