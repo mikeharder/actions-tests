@@ -1,4 +1,4 @@
-name: Shell Env ";ls;
+name: Shell Env ";ls;"
 
 on: pull_request
 
