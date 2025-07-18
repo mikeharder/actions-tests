@@ -31,6 +31,7 @@ jobs:
           # bash -c 'printf "%q\n" "$@"' -- $CUSTOM_GITHUB_WORKFLOW
           bash -c 'printf "%q\n" "$@"' -- "$CUSTOM_GITHUB_WORKFLOW"
 
+          bash -c 'printf "%q\n" "$@"' -- '${{ github.workflow }}'
           bash -c 'printf "%q\n" "$@"' -- ${{ toJSON(github.workflow) }}
 
           # echo ${{ github.workflow }}
