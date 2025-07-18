@@ -24,16 +24,16 @@ jobs:
           # echo $GITHUB_WORKFLOW
           # echo "$GITHUB_WORKFLOW"
           # bash -c 'printf "%q\n" "$@"' -- $GITHUB_WORKFLOW
-          # bash -c 'printf "%q\n" "$@"' -- "$GITHUB_WORKFLOW"
+          bash -c 'printf "%q\n" "$@"' -- "$GITHUB_WORKFLOW"
 
           # echo $CUSTOM_GITHUB_WORKFLOW
           # echo "$CUSTOM_GITHUB_WORKFLOW"
           # bash -c 'printf "%q\n" "$@"' -- $CUSTOM_GITHUB_WORKFLOW
-          # bash -c 'printf "%q\n" "$@"' -- "$CUSTOM_GITHUB_WORKFLOW"
+          bash -c 'printf "%q\n" "$@"' -- "$CUSTOM_GITHUB_WORKFLOW"
+
+          bash -c 'printf "%q\n" "$@"' -- ${{ toJSON(github.workflow) }}
 
           # echo ${{ github.workflow }}
           # echo "${{ github.workflow }}"
           # bash -c 'printf "%q\n" "$@"' -- ${{ github.workflow }}
           # bash -c 'printf "%q\n" "$@"' -- "${{ github.workflow }}"
-
-          bash -c 'printf "%q\n" "$@"' -- ${{ toJSON(github.workflow) }}
