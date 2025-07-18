@@ -1,0 +1,23 @@
+name: Shell Env
+
+on: pull_request
+
+jobs:
+  pull-request:
+    name: Shell Env
+
+    permissions:
+      contents: read
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: test script
+        run: |
+          set -x
+
+          echo $GITHUB_ACTION
+
+          echo "$GITHUB_ACTION"
