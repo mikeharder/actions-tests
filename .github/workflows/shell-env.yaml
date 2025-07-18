@@ -29,7 +29,7 @@ jobs:
           # echo $CUSTOM_GITHUB_WORKFLOW
           # echo "$CUSTOM_GITHUB_WORKFLOW"
           # bash -c 'printf "%q\n" "$@"' -- $CUSTOM_GITHUB_WORKFLOW
-          # bash -c 'printf "%q\n" "$@"' -- "$CUSTOM_GITHUB_WORKFLOW"
+          bash -c 'printf "%q\n" "$@"' -- "$CUSTOM_GITHUB_WORKFLOW"
 
           # echo ${{ github.workflow }}
           # echo "${{ github.workflow }}"
