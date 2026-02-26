@@ -1,4 +1,4 @@
-name: Print github-script bundled dependency versions
+name: Print github-script bundled dep versions
 
 on:
   pull_request:
@@ -7,39 +7,16 @@ permissions:
   contents: read
 
 jobs:
-  print-versions:
+  versions:
     runs-on: ubuntu-latest
     steps:
-      - name: Print versions
+      - name: Print versions (from action runtime)
         uses: actions/github-script@v8
         with:
           script: |
-            const fs = require('fs')
-            const path = require('path')
-
-            function readJson(p) {
-              return JSON.parse(fs.readFileSync(p, 'utf8'))
-            }
-
-            // Find the action install dir.
-            // Typically process.argv[1] == .../_actions/actions/github-script/v8/dist/index.js
-            const entry =
-              (process.argv && process.argv[1]) ||
-              (require.main && require.main.filename)
-
-            if (!entry) throw new Error('Could not determine Node entry file path.')
-
-            const distDir = path.dirname(entry)
-            const actionDir = path.resolve(distDir, '..') // dist -> action root
-
-            function pkgJsonPath(pkgName) {
-              // "@actions/core" -> actionDir/node_modules/@actions/core/package.json
-              return path.join(actionDir, 'node_modules', ...pkgName.split('/'), 'package.json')
-            }
-
-            function versionOf(pkgName) {
+            function versionOf(pkg) {
               try {
-                return readJson(pkgJsonPath(pkgName)).version || '(no version field)'
+                return __original_require__(`${pkg}/package.json`).version
               } catch (err) {
                 return `NOT FOUND (${err.code || err.message})`
               }
@@ -54,17 +31,9 @@ jobs:
               '@octokit/core',
             ]
 
-            // Also print github-script action's own version
-            let githubScriptVersion = '(unknown)'
-            try {
-              githubScriptVersion = readJson(path.join(actionDir, 'package.json')).version || '(no version field)'
-            } catch {}
-
             const out = Object.fromEntries(packages.map(p => [p, versionOf(p)]))
 
             console.log(JSON.stringify({
               node: process.version,
-              actionDir,
-              github_script: githubScriptVersion,
               ...out,
             }, null, 2))
