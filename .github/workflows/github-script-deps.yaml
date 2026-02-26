@@ -1,0 +1,41 @@
+name: Print github-script runtime dependency versions
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  print-versions:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print bundled package versions (github-script runtime)
+        uses: actions/github-script@v8
+        with:
+          script: |
+            function versionOf(pkg) {
+              try {
+                return require(require.resolve(`${pkg}/package.json`)).version
+              } catch (err) {
+                return `NOT FOUND (${err.code || err.message})`
+              }
+            }
+
+            const packages = [
+              '@actions/core',
+              '@actions/exec',
+              '@actions/github',
+              '@actions/glob',
+              '@actions/io',
+              '@octokit/core',
+            ]
+
+            const result = Object.fromEntries(
+              packages.map(name => [name, versionOf(name)])
+            )
+
+            console.log({
+              node: process.version,
+              ...result,
+            })
