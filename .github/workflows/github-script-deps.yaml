@@ -1,4 +1,4 @@
-name: Print github-script runtime dependency versions
+name: Print github-script bundled dependency versions
 
 on:
   pull_request:
@@ -8,16 +8,29 @@ permissions:
 
 jobs:
   print-versions:
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-latest
     steps:
-      - name: Print bundled package versions (github-script runtime)
+      - name: Print versions from github-script action bundle
         uses: actions/github-script@v8
         with:
           script: |
-            function versionOf(pkg) {
+            const fs = require('fs')
+            const path = require('path')
+
+            const actionPath = process.env.GITHUB_ACTION_PATH
+            if (!actionPath) throw new Error('GITHUB_ACTION_PATH is not set')
+
+            function pkgJsonPath(pkgName) {
+              // "@actions/core" -> ["@actions","core"]
+              const parts = pkgName.split('/')
+              return path.join(actionPath, 'node_modules', ...parts, 'package.json')
+            }
+
+            function versionOf(pkgName) {
               try {
-                // Works in github-script even when require.resolve is not available
-                return require(`${pkg}/package.json`).version
+                const p = pkgJsonPath(pkgName)
+                const json = JSON.parse(fs.readFileSync(p, 'utf8'))
+                return json.version || '(no version field)'
               } catch (err) {
                 return `NOT FOUND (${err.code || err.message})`
               }
@@ -32,11 +45,10 @@ jobs:
               '@octokit/core',
             ]
 
-            const result = Object.fromEntries(
-              packages.map(name => [name, versionOf(name)])
-            )
+            const out = Object.fromEntries(packages.map(p => [p, versionOf(p)]))
 
-            console.log({
+            console.log(JSON.stringify({
               node: process.version,
-              ...result,
-            })
+              github_script_action_path: actionPath,
+              ...out,
+            }, null, 2))
