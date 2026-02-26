@@ -1,4 +1,4 @@
-name: Print github-script bundled dependency versions
+name: Print github-script runtime dependency versions
 
 on:
   pull_request:
@@ -10,27 +10,21 @@ jobs:
   print-versions:
     runs-on: ubuntu-latest
     steps:
-      - name: Print versions from github-script action bundle
+      - name: Print bundled package versions
         uses: actions/github-script@v8
         with:
           script: |
-            const fs = require('fs')
             const path = require('path')
+            const fs = require('fs')
 
-            const actionPath = process.env.GITHUB_ACTION_PATH
-            if (!actionPath) throw new Error('GITHUB_ACTION_PATH is not set')
-
-            function pkgJsonPath(pkgName) {
-              // "@actions/core" -> ["@actions","core"]
-              const parts = pkgName.split('/')
-              return path.join(actionPath, 'node_modules', ...parts, 'package.json')
-            }
-
-            function versionOf(pkgName) {
+            function versionOf(pkg) {
               try {
-                const p = pkgJsonPath(pkgName)
-                const json = JSON.parse(fs.readFileSync(p, 'utf8'))
-                return json.version || '(no version field)'
+                // Resolve actual file location of the module
+                const entry = require(pkg)
+                const entryPath = require('module').createRequire(__filename).resolve(pkg)
+                const pkgRoot = entryPath.split(`node_modules/${pkg}`)[0] + `node_modules/${pkg}`
+                const pkgJson = path.join(pkgRoot, 'package.json')
+                return JSON.parse(fs.readFileSync(pkgJson, 'utf8')).version
               } catch (err) {
                 return `NOT FOUND (${err.code || err.message})`
               }
@@ -45,10 +39,11 @@ jobs:
               '@octokit/core',
             ]
 
-            const out = Object.fromEntries(packages.map(p => [p, versionOf(p)]))
+            const result = Object.fromEntries(
+              packages.map(p => [p, versionOf(p)])
+            )
 
-            console.log(JSON.stringify({
+            console.log({
               node: process.version,
-              github_script_action_path: actionPath,
-              ...out,
-            }, null, 2))
+              ...result
+            })
