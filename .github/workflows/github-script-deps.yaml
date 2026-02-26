@@ -16,7 +16,8 @@ jobs:
           script: |
             function versionOf(pkg) {
               try {
-                return require(require.resolve(`${pkg}/package.json`)).version
+                // Works in github-script even when require.resolve is not available
+                return require(`${pkg}/package.json`).version
               } catch (err) {
                 return `NOT FOUND (${err.code || err.message})`
               }
