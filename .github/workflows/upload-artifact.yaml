@@ -10,29 +10,41 @@ permissions: {}
 
 jobs:
   upload:
-    name: Upload (${{ matrix.size }}, archive=${{ matrix.archive }})
+    name: Upload Artifact
 
     runs-on: ubuntu-slim
 
-    strategy:
-      fail-fast: false
-      matrix:
-        size: [zero-bytes, single-byte]
-        archive: [true, false]
-
     steps:
-      - name: Create test file
-        run: |
-          if [ "${{ matrix.size }}" = "zero-bytes" ]; then
-            truncate -s 0 testfile.txt
-          else
-            printf 'a' > testfile.txt
-          fi
-          echo "File size: $(wc -c < testfile.txt) bytes"
+      - name: Create zero-byte file
+        run: truncate -s 0 zero.txt
 
-      - name: Upload artifact
+      - name: Upload zero-bytes, archive=true
         uses: actions/upload-artifact@v7
         with:
-          name: ${{ matrix.size }}-archive-${{ matrix.archive }}
-          path: testfile.txt
-          archive: ${{ matrix.archive }}
+          name: zero-bytes-archive-true
+          path: zero.txt
+          archive: true
+
+      - name: Upload zero-bytes, archive=false
+        uses: actions/upload-artifact@v7
+        with:
+          name: zero-bytes-archive-false
+          path: zero.txt
+          archive: false
+
+      - name: Create single-byte file
+        run: printf 'a' > single.txt
+
+      - name: Upload single-byte, archive=true
+        uses: actions/upload-artifact@v7
+        with:
+          name: single-byte-archive-true
+          path: single.txt
+          archive: true
+
+      - name: Upload single-byte, archive=false
+        uses: actions/upload-artifact@v7
+        with:
+          name: single-byte-archive-false
+          path: single.txt
+          archive: false
