@@ -1,0 +1,38 @@
+name: Upload Artifact
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions: {}
+
+jobs:
+  upload:
+    name: Upload (${{ matrix.size }}, archive=${{ matrix.archive }})
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        size: [zero-bytes, single-byte]
+        archive: [true, false]
+
+    steps:
+      - name: Create test file
+        run: |
+          if [ "${{ matrix.size }}" = "zero-bytes" ]; then
+            truncate -s 0 testfile.txt
+          else
+            printf 'a' > testfile.txt
+          fi
+          echo "File size: $(wc -c < testfile.txt) bytes"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ matrix.size }}-archive-${{ matrix.archive }}
+          path: testfile.txt
+          archive: ${{ matrix.archive }}
