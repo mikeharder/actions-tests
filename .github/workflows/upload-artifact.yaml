@@ -12,7 +12,7 @@ jobs:
   upload:
     name: Upload (${{ matrix.size }}, archive=${{ matrix.archive }})
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
 
     strategy:
       fail-fast: false
